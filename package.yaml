@@ -1,0 +1,77 @@
+name:               servant-template
+version:            0.1.0.0
+author:             Marco Perone
+maintainer:         marco.perone@tweag.io
+extra-source-files:
+  - README.md
+
+ghc-options:
+  -W
+  -Wall
+  -Werror
+  -fwrite-ide-info
+  -hiedir=.hie
+
+default-extensions:
+  - OverloadedStrings
+
+library:
+  source-dirs:      src
+
+dependencies:
+  - base >= 4.14 && < 5
+  - aeson
+  - bcrypt
+  - bytestring
+  - co-log-core
+  - containers
+  - extra
+  - hasql
+  - hasql-transaction
+  - jose
+  - lens
+  - mtl
+  - openapi3
+  - optparse-applicative
+  - postgresql-error-codes
+  - rel8
+  - servant
+  - servant-auth
+  - servant-auth-server
+  - servant-openapi3
+  - servant-server
+  - text
+  - time
+  - tomland
+  - transformers
+  - uuid
+  - wai
+
+executables:
+  servant-template-exe:
+    source-dirs:    app
+    main:           Main.hs
+    dependencies:
+      - servant-template
+      - bytestring
+      - hasql
+      - jose
+      - transformers
+      - wai-cors
+      - wai-extra
+      - warp
+
+tests:
+  servant-template-spec:
+    main:           Spec.hs
+    source-dirs:    spec
+    dependencies:
+      - servant-template
+      - containers
+      - hspec
+      - http-client
+      - http-types
+      - servant-auth-client
+      - servant-client
+      - servant-client-core
+      - warp

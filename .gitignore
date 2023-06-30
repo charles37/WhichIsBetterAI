@@ -1,0 +1,7 @@
+.direnv
+.postgres
+.hie
+.stack-work
+*.cabal
+.jwk
+.pre-commit-config.yaml

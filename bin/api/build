@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+args=$@
+cmd="stack build $args"
+
+bin/util/with-nix $cmd

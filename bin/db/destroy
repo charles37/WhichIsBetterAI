@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+pkill postgres
+rm -rf ./.postgres
