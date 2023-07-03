@@ -158,10 +158,10 @@ conceptSchema =
       schema = Nothing,
       columns =
         Concept
-          { conceptId = "id",
-            conceptName = "name",
-            conceptDescription = "description",
-            conceptWikiLink = "wiki_link"
+          { conceptId = "concept_id",
+            conceptName = "concept_name",
+            conceptDescription = "concept_description",
+            conceptWikiLink = "concept_wiki_link"
           }
     }
 

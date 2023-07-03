@@ -68,7 +68,9 @@ update msg model =
             Tuple.mapFirst (\newTags -> { model | newTags = newTags }) (Tags.update (always Cmd.none) tagMsg model.newTags)
 
         SubmitContent ->
-            ( model, addContent model.token (Content model.newContent model.newTags.tags) )
+            ( model, addConcept model.token )
+
+            -- ( model, addContent model.token (Content model.newContent model.newTags.tags) )
 
         SubmitSuccessful content ->
             ( { model | contents = content :: model.contents }, Cmd.none )
@@ -205,6 +207,17 @@ addContent token content =
         , tracker = Nothing
         }
 
+addConcept : Token -> Cmd Msg
+addConcept token =
+    Http.request
+        { method = "POST"
+        , headers = [ authorization token ]
+        , url = "http://localhost:8080/add-concept/test/test/test"
+        , body = jsonBody (Json.Encode.object [])
+        , expect = expectWhatever (always SubmitFailed)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 handleNewContentResponse : Content -> Result Http.Error () -> Msg
 handleNewContentResponse content result =
@@ -214,7 +227,6 @@ handleNewContentResponse content result =
 
         Ok () ->
             SubmitSuccessful content
-
 
 tagEncoder : Tag -> Json.Encode.Value
 tagEncoder tag =
