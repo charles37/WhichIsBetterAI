@@ -13,6 +13,7 @@ import Tagger.Id (Id)
 import qualified Tagger.Tag as Domain (Tag)
 import qualified Tagger.User as Domain (User)
 import qualified Tagger.Concept as Domain (Concept)
+import qualified Tagger.Model as Domain (Model)
 
 -- TAG
 
@@ -168,3 +169,37 @@ conceptSchema =
 litConcept :: Concept Result -> Concept Expr
 litConcept (Concept id' name' description' wikiLink') =
   Concept (lit id') (lit name') (lit description') (lit wikiLink')
+
+--data Model = Model
+--  { --  modelID :: UUID
+--    modelName :: Text,
+--    modelDescription :: Text,
+--  }
+--  deriving stock (Eq, Show, Generic)
+--
+
+data Model f = Model
+  { modelId :: Column f (Id Domain.Model),
+    modelName :: Column f Text,
+    modelDescription :: Column f Text
+  }
+  deriving stock (Generic)
+  deriving anyclass (Rel8able)
+
+modelSchema :: TableSchema (Model Name)
+modelSchema =
+  TableSchema
+    { name = "models",
+      schema = Nothing,
+      columns =
+        Model
+          { modelId = "model_id",
+            modelName = "model_name",
+            modelDescription = "model_description"
+          }
+    }
+
+litModel :: Model Result -> Model Expr
+litModel (Model id' name' description') =
+  Model (lit id') (lit name') (lit description')
+

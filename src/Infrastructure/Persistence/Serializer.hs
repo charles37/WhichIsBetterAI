@@ -1,7 +1,9 @@
 module Infrastructure.Persistence.Serializer where
 
-import Infrastructure.Persistence.Schema (contentContent, contentId, contentUserId, tagId, tagName, userId, userName, userPassword, conceptId, conceptName, conceptDescription, conceptWikiLink)
-import qualified Infrastructure.Persistence.Schema as DB (Content (Content), Tag (Tag), User (User), Concept (Concept))
+import Infrastructure.Persistence.Schema (contentContent, contentId, contentUserId, tagId, tagName, userId, userName, userPassword, 
+    conceptId, conceptName, conceptDescription, conceptWikiLink, modelId, modelName, modelDescription)
+import qualified Infrastructure.Persistence.Schema as DB (Content (Content), Tag (Tag), User (User),
+    Concept (Concept), Model (Model))
 import Rel8 (Result)
 import Tagger.Content (Content (..), createContent)
 import Tagger.Id (Id)
@@ -14,6 +16,8 @@ import qualified Tagger.User as User (name, password)
 
 import Tagger.Concept (Concept (Concept))
 import qualified Tagger.Concept as Concept (conceptName, conceptDescription, conceptWikiLink)
+import Tagger.Model (Model (Model))
+import qualified Tagger.Model as Model (modelName, modelDescription)
 
 -- CONTENT
 
@@ -106,3 +110,31 @@ serializeConcept conceptId' concept =
 unserializeConcept :: DB.Concept Result -> Concept
 unserializeConcept concept = Concept (conceptName concept) (conceptDescription concept) (conceptWikiLink concept)
 
+
+--data Model f = Model
+--  { modelId :: Column f (Id Domain.Model),
+--    modelName :: Column f Text,
+--    modelDescription :: Column f Text
+--  }
+--  deriving stock (Generic)
+--  deriving anyclass (Rel8able)
+
+
+-- MODEL
+-- |
+-- Transform from a domain representation of a 'Model' to its underlying database representation
+
+serializeModel :: Id Model -> Model -> DB.Model Result
+serializeModel modelId' model = 
+  DB.Model
+    { modelId = modelId',
+      modelName = Model.modelName model,
+      modelDescription = Model.modelDescription model
+    }
+
+-- |
+-- Transform from the database representation of a 'Model' to its domain representation
+--
+--
+unserializeModel :: DB.Model Result -> Model
+unserializeModel model = Model (modelName model) (modelDescription model)

@@ -9,11 +9,17 @@ import Hasql.Session (Session, statement)
 import Hasql.Statement (Statement)
 import qualified Hasql.Transaction as Transaction (statement)
 import Hasql.Transaction.Sessions (IsolationLevel (Serializable), Mode (Write), transaction)
-import Infrastructure.Persistence.Schema (Concept(..), Content (..), ContentsTags (..), Tag (..), User (userName), contentSchema, contentsTagsSchema, litContent, litTag, tagSchema, userId, userSchema, conceptSchema)
+import Infrastructure.Persistence.Schema ( Content (..), ContentsTags (..),
+    Tag (..), User (userName), contentSchema, contentsTagsSchema, litContent, litTag, tagSchema, 
+    userId, userSchema, 
+    conceptSchema, modelSchema,
+    Concept(..), Model(..)
+    )
 import Rel8 (Expr, Insert (..), Name, OnConflict (..), Query, Rel8able, Result, TableSchema, each, filter, in_, insert, lit, many, select, values, where_, (==.))
 import Tagger.Id (Id)
 import qualified Tagger.User as Domain (User)
 import qualified Tagger.Concept as Domain (Concept) 
+import qualified Tagger.Model as Domain (Model)
 import Data.Maybe (listToMaybe)
 import Prelude hiding (filter)
 
@@ -203,3 +209,47 @@ selectAllConcepts = statement () query
 
 
 
+-- |
+-- A 'ModelRepository' represents a collection of 'Model's.
+-- It is indexed by a context 'm' which wraps the results.
+--data ModelRepository m = ModelRepository
+--  { -- | selects a 'Model' by its 'Id'
+--    selectModel :: Id Model -> m Model,
+--    -- | selects a 'Model' by its 'WikiLink' 
+--    getModelByName :: Text -> m (Id Model, Model),
+--    -- | selects all the 'Model's
+--    selectAllModels :: m [(Id Model, Model)],
+--    -- | adds a 'Model'
+--    addModel :: Text -> Text -> m (Id Model)
+--  }
+
+--data Model = Model
+--  { --  modelId :: UUID
+--  modelName :: Text,
+--  modelDescription :: Text,
+--  }
+
+addModel :: Model Expr -> Session ()
+addModel = statement () . add modelSchema . pure
+
+selectModel :: (Id Domain.Model) -> Session (Maybe (Model Result))
+selectModel modelId' = statement () query
+  where
+    query = fmap listToMaybe . select $ do
+      models <- each modelSchema
+      filter (\model -> modelId model ==. lit modelId') models
+
+selectModelByName :: Text -> Session (Either WrongNumberOfResults (Model Result))
+selectModelByName name = statement () query
+  where
+    query = fmap justOne . select $ do
+      models <- each modelSchema
+      filter (\model -> modelName model ==. lit name) models
+
+selectAllModels :: Session [Model Result]
+selectAllModels = statement () query
+  where
+    query = select $ do
+      models <- each modelSchema
+      pure models
+    

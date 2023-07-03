@@ -13,7 +13,6 @@ import API.Authentication (AuthenticationAPI, authenticationServer)
 import API.Docs (DocsAPI, docsServer)
 import API.Healthcheck (HealthcheckAPI, healthcheckServer)
 import API.Tagger (TaggerAPI, taggerServer)
-import API.Concept (ConceptAPI, conceptServer)
 import Data.Proxy (Proxy (..))
 import GHC.Generics (Generic)
 import Network.Wai (Application)
@@ -24,8 +23,11 @@ import Servant.Auth (Auth, JWT)
 import Servant.Auth.Server (AuthResult (Authenticated), ThrowAll (throwAll), defaultCookieSettings)
 import Servant.Server.Generic (AsServer)
 import Tagger.Id (Id)
-import Tagger.Repository.Content (ContentRepository)
 import Tagger.User (User)
+import Tagger.Repository.Content (ContentRepository)
+
+import API.Concept (ConceptAPI, conceptServer)
+import API.Model (ModelAPI, modelServer)
 
 type API = NamedRoutes ApplicationAPI
 
@@ -36,7 +38,8 @@ data ApplicationAPI mode = ApplicationAPI
     docs :: mode :- DocsAPI,
     healthcheck :: mode :- HealthcheckAPI,
     authentication :: mode :- NamedRoutes AuthenticationAPI,
-    concepts :: mode :- NamedRoutes ConceptAPI
+    concepts :: mode :- NamedRoutes ConceptAPI,
+    models :: mode :- NamedRoutes ModelAPI
   }
   deriving stock (Generic)
 
@@ -51,13 +54,14 @@ authenticatedTaggerServer contentRepository = \case
 -- |
 -- Setup all the application server, providing the services needed by the various endpoints
 server :: AppServices -> ApplicationAPI AsServer
-server AppServices {passwordManager, contentRepository, userRepository, authenticateUser, conceptRepository} =
+server AppServices {passwordManager, contentRepository, userRepository, authenticateUser, conceptRepository, modelRepository} =
   ApplicationAPI
     { tagger = authenticatedTaggerServer contentRepository,
       docs = docsServer,
       healthcheck = healthcheckServer,
       authentication = authenticationServer passwordManager authenticateUser userRepository,
-      concepts = conceptServer conceptRepository
+      concepts = conceptServer conceptRepository,
+      models = modelServer modelRepository 
     }
 
 app :: AppServices -> Application
