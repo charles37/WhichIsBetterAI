@@ -27,6 +27,11 @@ import Tagger.Repository.User (UserRepository)
 import qualified Tagger.Repository.User as UserRepository
 import Prelude hiding (log)
 
+import qualified Tagger.Repository.Concept as ConceptRepository
+import Tagger.Repository.Concept (ConceptRepository)
+import qualified Impl.Repository.Concept as Repo.Concept
+import Impl.Repository.Concept.Error (ConceptRepositoryError (..))
+
 -- |
 -- Collection of services needed by the application to work
 data AppServices = AppServices
@@ -34,7 +39,8 @@ data AppServices = AppServices
     passwordManager :: PasswordManager Handler,
     contentRepository :: ContentRepository Handler,
     userRepository :: UserRepository Handler,
-    authenticateUser :: Auth.Authenticator Handler
+    authenticateUser :: Auth.Authenticator Handler,
+    conceptRepository :: ConceptRepository Handler
   }
 
 -- |
@@ -61,6 +67,22 @@ connectedUserRepository logHandle = UserRepository.hoist $ eitherTToHandler hand
     handleUserRepositoryError e = do
       logError logHandle (show e)
       throwError err500
+
+-- | 
+-- Lifts a 'ConceptRepository' fo the 'Handler' monad, handling all errors by logging them and returning a 500 response
+connectedConceptRepository :: Logger.Handle -> ConceptRepository (ExceptT ConceptRepositoryError IO) -> ConceptRepository Handler
+connectedConceptRepository logHandle = ConceptRepository.hoist $ eitherTToHandler handleConceptRepositoryError
+    where 
+      handleConceptRepositoryError :: ConceptRepositoryError -> Handler a
+      -- If the database error concerns a duplicate concept, we return a 403 response
+      handleConceptRepositoryError (DuplicateConceptWikiLink e) = do
+        logWarning logHandle $ show (DuplicateConceptWikiLink e) 
+        throwError err403
+      -- Otherwise, we return a 500 response
+      handleConceptRepositoryError e = do
+        logError logHandle (show e)
+        throwError err500
+
 
 -- |
 -- Creates an 'AuthenticateUser' service injecting its dependencies and handling errors
@@ -103,10 +125,13 @@ start dbHandle logHandle key =
   let logContext = flip withContext logHandle
       passwordManager' = encryptedPasswordManager (withContext "PasswordManager" logHandle) $ defaultJWTSettings key
       dbUserRepository = Repo.User.postgres dbHandle
+      dbConceptRepository = Repo.Concept.postgres dbHandle
    in AppServices
         { jwtSettings = defaultJWTSettings key,
           passwordManager = passwordManager',
           contentRepository = connectedContentRepository (logContext "ContentRepository") (Repo.Content.postgres dbHandle),
           userRepository = connectedUserRepository (logContext "UserRepository") dbUserRepository,
-          authenticateUser = connectedAuthenticateUser (logContext "AuthenticateUser") dbUserRepository passwordManager'
+          authenticateUser = connectedAuthenticateUser (logContext "AuthenticateUser") dbUserRepository passwordManager',
+          conceptRepository = connectedConceptRepository (logContext "ConceptRepository") dbConceptRepository
+
         }

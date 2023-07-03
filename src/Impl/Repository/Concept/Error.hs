@@ -1,12 +1,15 @@
 module Impl.Repository.Concept.Error (ConceptRepositoryError (..)) where
 
 import Hasql.Session (QueryError (..))
-import Infrastructure.Persistence.Queries (WrongNumberOfResults)
+import Data.Text (Text)
 
 -- We want to distinguish the `QueryError` coming from the violation of the "concepts_name_key" unique constraints
 data ConceptRepositoryError
   = DuplicateConceptName QueryError
-  | ConceptNotFound
+  | DuplicateConceptWikiLink QueryError
+  | ConceptNotFound Text
+  | ConceptNotFoundByWikiLink Text
   | DatabaseError QueryError
+  | OtherError QueryError
   deriving (Show)
 

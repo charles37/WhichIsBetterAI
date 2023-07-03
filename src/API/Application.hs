@@ -13,6 +13,7 @@ import API.Authentication (AuthenticationAPI, authenticationServer)
 import API.Docs (DocsAPI, docsServer)
 import API.Healthcheck (HealthcheckAPI, healthcheckServer)
 import API.Tagger (TaggerAPI, taggerServer)
+import API.Concept (ConceptAPI, conceptServer)
 import Data.Proxy (Proxy (..))
 import GHC.Generics (Generic)
 import Network.Wai (Application)
@@ -34,7 +35,8 @@ data ApplicationAPI mode = ApplicationAPI
   { tagger :: mode :- Auth '[JWT] (Id User) :> NamedRoutes TaggerAPI,
     docs :: mode :- DocsAPI,
     healthcheck :: mode :- HealthcheckAPI,
-    authentication :: mode :- NamedRoutes AuthenticationAPI
+    authentication :: mode :- NamedRoutes AuthenticationAPI,
+    concepts :: mode :- NamedRoutes ConceptAPI
   }
   deriving stock (Generic)
 
@@ -49,12 +51,13 @@ authenticatedTaggerServer contentRepository = \case
 -- |
 -- Setup all the application server, providing the services needed by the various endpoints
 server :: AppServices -> ApplicationAPI AsServer
-server AppServices {passwordManager, contentRepository, userRepository, authenticateUser} =
+server AppServices {passwordManager, contentRepository, userRepository, authenticateUser, conceptRepository} =
   ApplicationAPI
     { tagger = authenticatedTaggerServer contentRepository,
       docs = docsServer,
       healthcheck = healthcheckServer,
-      authentication = authenticationServer passwordManager authenticateUser userRepository
+      authentication = authenticationServer passwordManager authenticateUser userRepository,
+      concepts = conceptServer conceptRepository
     }
 
 app :: AppServices -> Application

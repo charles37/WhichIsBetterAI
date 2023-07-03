@@ -23,26 +23,26 @@
 
 -- Table for Concepts
 CREATE TABLE concepts (
-    concept_id SERIAL PRIMARY KEY,
+    concept_id UUID PRIMARY KEY,
     concept_name VARCHAR(255) NOT NULL,
     concept_description TEXT NOT NULL,
-    concept_wiki_link TEXT NOT NULL
+    concept_wiki_link TEXT NOT NULL UNIQUE
 );
 
 -- Table for AI Models
 CREATE TABLE ai_models (
-    model_id SERIAL PRIMARY KEY,
+    model_id UUID PRIMARY KEY,
     model_name VARCHAR(255) NOT NULL,
     model_description TEXT NOT NULL
 );
 
 -- Table for Comparison Results
 CREATE TABLE comparison_results (
-    comparison_id SERIAL PRIMARY KEY,
-    concept1_id INTEGER NOT NULL,
-    concept2_id INTEGER NOT NULL,
-    winning_concept_id INTEGER NOT NULL,
-    model_id INTEGER NOT NULL,
+    comparison_id UUID PRIMARY KEY,
+    concept1_id UUID NOT NULL,
+    concept2_id UUID NOT NULL,
+    winning_concept_id UUID NOT NULL,
+    model_id UUID NOT NULL,
     comparison_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (concept1_id) REFERENCES concepts (concept_id),
     FOREIGN KEY (concept2_id) REFERENCES concepts (concept_id),
@@ -52,9 +52,9 @@ CREATE TABLE comparison_results (
 
 -- Table for ELO Scores
 CREATE TABLE elo_scores (
-    elo_id SERIAL PRIMARY KEY,
-    concept_id INTEGER NOT NULL,
-    model_id INTEGER NOT NULL,
+    elo_id UUID PRIMARY KEY,
+    concept_id UUID NOT NULL,
+    model_id UUID NOT NULL,
     elo_score INTEGER NOT NULL DEFAULT 0,
     last_update_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),

@@ -8,8 +8,10 @@ import Data.Aeson (ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
+import Data.OpenApi (ToSchema)
+
 data Concept = Concept
-  { conceptId :: Int,
+  { --  conceptId :: UUID
     conceptName :: Text,
     conceptDescription :: Text,
     conceptWikiLink :: Text
@@ -18,3 +20,4 @@ data Concept = Concept
 
 instance ToJSON Concept
 
+instance ToSchema Concept

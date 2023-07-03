@@ -12,6 +12,7 @@ import Tagger.EncryptedPassword (EncryptedPassword)
 import Tagger.Id (Id)
 import qualified Tagger.Tag as Domain (Tag)
 import qualified Tagger.User as Domain (User)
+import qualified Tagger.Concept as Domain (Concept)
 
 -- TAG
 
@@ -131,3 +132,39 @@ userSchema =
 -- Allows to lift a 'User' with no context into the 'Expr' context
 litUser :: User Result -> User Expr
 litUser (User id' name' password) = User (lit id') (lit name') (lit password)
+
+-- | Concepts
+--data Concept = Concept
+--  { --  conceptId :: UUID
+--    conceptName :: Text,
+--    conceptDescription :: Text,
+--    conceptWikiLink :: Text
+--  }
+--  deriving stock (Eq, Show, Generic)
+
+data Concept f = Concept
+  { conceptId :: Column f (Id Domain.Concept),
+    conceptName :: Column f Text,
+    conceptDescription :: Column f Text,
+    conceptWikiLink :: Column f Text
+  }
+  deriving stock (Generic)
+  deriving anyclass (Rel8able)
+
+conceptSchema :: TableSchema (Concept Name)
+conceptSchema =
+  TableSchema
+    { name = "concepts",
+      schema = Nothing,
+      columns =
+        Concept
+          { conceptId = "id",
+            conceptName = "name",
+            conceptDescription = "description",
+            conceptWikiLink = "wiki_link"
+          }
+    }
+
+litConcept :: Concept Result -> Concept Expr
+litConcept (Concept id' name' description' wikiLink') =
+  Concept (lit id') (lit name') (lit description') (lit wikiLink')

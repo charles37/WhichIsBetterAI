@@ -9,11 +9,14 @@ import Hasql.Session (Session, statement)
 import Hasql.Statement (Statement)
 import qualified Hasql.Transaction as Transaction (statement)
 import Hasql.Transaction.Sessions (IsolationLevel (Serializable), Mode (Write), transaction)
-import Infrastructure.Persistence.Schema (Content (..), ContentsTags (..), Tag (..), User (userName), contentSchema, contentsTagsSchema, litContent, litTag, tagSchema, userId, userSchema)
+import Infrastructure.Persistence.Schema (Concept(..), Content (..), ContentsTags (..), Tag (..), User (userName), contentSchema, contentsTagsSchema, litContent, litTag, tagSchema, userId, userSchema, conceptSchema)
 import Rel8 (Expr, Insert (..), Name, OnConflict (..), Query, Rel8able, Result, TableSchema, each, filter, in_, insert, lit, many, select, values, where_, (==.))
 import Tagger.Id (Id)
 import qualified Tagger.User as Domain (User)
+import qualified Tagger.Concept as Domain (Concept) 
+import Data.Maybe (listToMaybe)
 import Prelude hiding (filter)
+
 
 -- SELECT CONTENTS
 
@@ -148,3 +151,55 @@ selectUserByName name = statement () query
 -- Add a new 'User' in the database
 addUser :: User Expr -> Session ()
 addUser = statement () . add userSchema . pure
+
+
+-- SELECT CONCEPT
+
+-- |
+-- A 'ConceptRepository' represents a collection of 'Concept's.
+-- It is indexed by a context 'm' which wraps the results.
+--data ConceptRepository m = ConceptRepository
+--  { -- | selects a 'Concept' by its 'Id'
+--    selectConcept :: Id Concept -> m Concept,
+--    -- | selects a 'Concept' by its 'Name' (it can possibly return more than one 'Concept')
+--    selectConceptByName :: Text -> m [Concept], 
+--    -- | selects all the 'Concept's
+--    selectAllConcepts :: m [Concept],
+--    -- | adds a 'Concept'
+--    addConcept :: Concept -> m (Id Concept)
+--  }
+--
+
+
+--data Concept = Concept
+--  { --  conceptId :: UUID
+--    conceptName :: Text,
+--    conceptDescription :: Text,
+--    conceptWikiLink :: Text
+--  }
+--  deriving stock (Eq, Show, Generic)
+
+addConcept :: Concept Expr -> Session ()
+addConcept = statement () . add conceptSchema . pure
+
+selectConcept :: (Id Domain.Concept) -> Session (Maybe (Concept Result))
+selectConcept conceptId' = statement () query
+  where
+    query = fmap listToMaybe . select $ do
+      concepts <- each conceptSchema
+      filter (\concept -> conceptId concept ==. lit conceptId') concepts
+
+selectConceptByWikiLink :: Text -> Session (Either WrongNumberOfResults (Concept Result)) 
+selectConceptByWikiLink wikiLink = statement () query
+  where
+    query = fmap justOne . select $ do
+      concepts <- each conceptSchema
+      filter (\concept -> conceptWikiLink concept ==. lit wikiLink) concepts
+
+selectAllConcepts :: Session [Concept Result] 
+selectAllConcepts = statement () query
+  where
+    query = select $ each conceptSchema
+
+
+
