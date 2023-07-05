@@ -68,8 +68,9 @@ update msg model =
             Tuple.mapFirst (\newTags -> { model | newTags = newTags }) (Tags.update (always Cmd.none) tagMsg model.newTags)
 
         SubmitContent ->
-            ( model, addConcept model.token )
-
+            (model, addModel model.token)
+            -- ( model, addConcept model.token )
+            -- BENS TESTING GROUNDS
             -- ( model, addContent model.token (Content model.newContent model.newTags.tags) )
 
         SubmitSuccessful content ->
@@ -213,6 +214,18 @@ addConcept token =
         { method = "POST"
         , headers = [ authorization token ]
         , url = "http://localhost:8080/add-concept/test/test/test"
+        , body = jsonBody (Json.Encode.object [])
+        , expect = expectWhatever (always SubmitFailed)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+addModel : Token -> Cmd Msg
+addModel token = 
+    Http.request
+        { method = "POST"
+        , headers = [ authorization token ]
+        , url = "http://localhost:8080/add-model/myModelName/modelDesc"
         , body = jsonBody (Json.Encode.object [])
         , expect = expectWhatever (always SubmitFailed)
         , timeout = Nothing

@@ -31,10 +31,21 @@ import qualified Tagger.Repository.Concept as ConceptRepository
 import Tagger.Repository.Concept (ConceptRepository)
 import qualified Impl.Repository.Concept as Repo.Concept
 import Impl.Repository.Concept.Error (ConceptRepositoryError (..))
+
 import qualified Tagger.Repository.Model as ModelRepository
 import Tagger.Repository.Model (ModelRepository)
 import qualified Impl.Repository.Model as Repo.Model
 import Impl.Repository.Model.Error (ModelRepositoryError (..))
+
+import qualified Tagger.Repository.Elo as EloRepository
+import Tagger.Repository.Elo (EloRepository)
+import qualified Impl.Repository.Elo as Repo.Elo
+import Impl.Repository.Elo.Error (EloRepositoryError (..))
+
+import qualified Tagger.Repository.Comparison as ComparisonRepository
+import Tagger.Repository.Comparison (ComparisonRepository)
+import qualified Impl.Repository.Comparison as Repo.Comparison
+import Impl.Repository.Comparison.Error (ComparisonRepositoryError (..))
 
 -- |
 -- Collection of services needed by the application to work
@@ -45,7 +56,10 @@ data AppServices = AppServices
     userRepository :: UserRepository Handler,
     authenticateUser :: Auth.Authenticator Handler,
     conceptRepository :: ConceptRepository Handler,
-    modelRepository :: ModelRepository Handler
+    modelRepository :: ModelRepository Handler,
+    eloRepository :: EloRepository Handler,
+    comparisonRepository :: ComparisonRepository Handler
+
   }
 
 -- |
@@ -102,6 +116,35 @@ connectedModelRepository logHandle = ModelRepository.hoist $ eitherTToHandler ha
       handleModelRepositoryError e = do
         logError logHandle (show e)
         throwError err500
+-- |
+-- Lifts a 'EloRepository' fo the 'Handler' monad, handling all errors by logging them and returning a 500 response
+connectedEloRepository :: Logger.Handle -> EloRepository (ExceptT EloRepositoryError IO) -> EloRepository Handler
+connectedEloRepository logHandle = EloRepository.hoist $ eitherTToHandler handleEloRepositoryError
+    where 
+      handleEloRepositoryError :: EloRepositoryError -> Handler a
+      -- If the database error concerns a duplicate elo, we return a 403 response
+--      handleEloRepositoryError (DuplicateElo e) = do
+--        logWarning logHandle $ show (DuplicateElo e) 
+--        throwError err403
+      -- Otherwise, we return a 500 response
+      handleEloRepositoryError e = do
+        logError logHandle (show e)
+        throwError err500
+
+-- |
+-- Lifts a 'ComparisonRepository' fo the 'Handler' monad, handling all errors by logging them and returning a 500 response
+connectedComparisonRepository :: Logger.Handle -> ComparisonRepository (ExceptT ComparisonRepositoryError IO) -> ComparisonRepository Handler
+connectedComparisonRepository logHandle = ComparisonRepository.hoist $ eitherTToHandler handleComparisonRepositoryError
+    where 
+      handleComparisonRepositoryError :: ComparisonRepositoryError -> Handler a
+      -- If the database error concerns a duplicate comparison, we return a 403 response
+     -- handleComparisonRepositoryError (DuplicateComparison e) = do
+     --   logWarning logHandle $ show (DuplicateComparison e) 
+     --   throwError err403
+      -- Otherwise, we return a 500 response
+      handleComparisonRepositoryError e = do
+        logError logHandle (show e)
+        throwError err500
 
 -- |
 -- Creates an 'AuthenticateUser' service injecting its dependencies and handling errors
@@ -146,6 +189,8 @@ start dbHandle logHandle key =
       dbUserRepository = Repo.User.postgres dbHandle
       dbConceptRepository = Repo.Concept.postgres dbHandle
       dbModelRepository = Repo.Model.postgres dbHandle
+      dbEloRepository = Repo.Elo.postgres dbHandle  
+      dbComparisonRepository = Repo.Comparison.postgres dbHandle
    in AppServices
         { jwtSettings = defaultJWTSettings key,
           passwordManager = passwordManager',
@@ -153,5 +198,7 @@ start dbHandle logHandle key =
           userRepository = connectedUserRepository (logContext "UserRepository") dbUserRepository,
           authenticateUser = connectedAuthenticateUser (logContext "AuthenticateUser") dbUserRepository passwordManager',
           conceptRepository = connectedConceptRepository (logContext "ConceptRepository") dbConceptRepository,
-          modelRepository = connectedModelRepository (logContext "ModelRepository") dbModelRepository
+          modelRepository = connectedModelRepository (logContext "ModelRepository") dbModelRepository,
+          eloRepository = connectedEloRepository (logContext "EloRepository") dbEloRepository,
+          comparisonRepository = connectedComparisonRepository (logContext "ComparisonRepository") dbComparisonRepository
         }

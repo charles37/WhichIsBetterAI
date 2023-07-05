@@ -28,6 +28,8 @@ import Tagger.Repository.Content (ContentRepository)
 
 import API.Concept (ConceptAPI, conceptServer)
 import API.Model (ModelAPI, modelServer)
+import API.Elo (EloAPI, eloServer)
+import API.Comparison (ComparisonAPI, comparisonServer)
 
 type API = NamedRoutes ApplicationAPI
 
@@ -39,7 +41,9 @@ data ApplicationAPI mode = ApplicationAPI
     healthcheck :: mode :- HealthcheckAPI,
     authentication :: mode :- NamedRoutes AuthenticationAPI,
     concepts :: mode :- NamedRoutes ConceptAPI,
-    models :: mode :- NamedRoutes ModelAPI
+    models :: mode :- NamedRoutes ModelAPI,
+    elos :: mode :- NamedRoutes EloAPI,
+    comparisons :: mode :- NamedRoutes ComparisonAPI
   }
   deriving stock (Generic)
 
@@ -54,14 +58,16 @@ authenticatedTaggerServer contentRepository = \case
 -- |
 -- Setup all the application server, providing the services needed by the various endpoints
 server :: AppServices -> ApplicationAPI AsServer
-server AppServices {passwordManager, contentRepository, userRepository, authenticateUser, conceptRepository, modelRepository} =
+server AppServices {passwordManager, contentRepository, userRepository, authenticateUser, conceptRepository, modelRepository, eloRepository, comparisonRepository} =
   ApplicationAPI
     { tagger = authenticatedTaggerServer contentRepository,
       docs = docsServer,
       healthcheck = healthcheckServer,
       authentication = authenticationServer passwordManager authenticateUser userRepository,
       concepts = conceptServer conceptRepository,
-      models = modelServer modelRepository 
+      models = modelServer modelRepository,
+      elos = eloServer eloRepository,
+      comparisons = comparisonServer comparisonRepository
     }
 
 app :: AppServices -> Application

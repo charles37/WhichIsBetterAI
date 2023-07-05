@@ -33,6 +33,20 @@ packages:
   original:
     hackage: validation-selective-0.1.0.1
 - completed:
+    hackage: openai-hs-0.3.0.0@sha256:87e95f038073fee8227df7cc3b6e436d8aaf778d88076585eb6b6c2d569c345e,2687
+    pantry-tree:
+      sha256: 6f77b01a63d855b4036202d8d99bfb451f5bfaafb9f27a74e12a30a7d0ce5e9c
+      size: 507
+  original:
+    hackage: openai-hs-0.3.0.0
+- completed:
+    hackage: openai-servant-0.3.0.0@sha256:bb061100554ca97e2d26765d0ec57d76126342ca49e537483282f36b6e92b082,1605
+    pantry-tree:
+      sha256: 7740569290657a18312bdc9d1ef7070336a3cdf03d48d09b814dc03965e87b21
+      size: 397
+  original:
+    hackage: openai-servant-0.3.0.0@sha256:bb061100554ca97e2d26765d0ec57d76126342ca49e537483282f36b6e92b082,1605
+- completed:
     commit: d05da71f09be08131d29a2c17f613a4bd71faea2
     git: https://github.com/haskell-servant/servant
     name: servant-auth-server

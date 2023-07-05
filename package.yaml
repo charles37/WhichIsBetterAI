@@ -25,13 +25,17 @@ dependencies:
   - bytestring
   - co-log-core
   - containers
+  - dotenv
   - extra
   - hasql
   - hasql-transaction
+  - http-client
+  - http-client-tls
   - jose
   - lens
   - mtl
   - openapi3
+  - openai-hs
   - optparse-applicative
   - postgresql-error-codes
   - rel8
@@ -41,6 +45,7 @@ dependencies:
   - servant-openapi3
   - servant-server
   - text
+  - text-metrics
   - time
   - tomland
   - transformers

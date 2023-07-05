@@ -1,5 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module Infrastructure.Persistence.Queries where
 
@@ -12,17 +16,21 @@ import Hasql.Transaction.Sessions (IsolationLevel (Serializable), Mode (Write), 
 import Infrastructure.Persistence.Schema ( Content (..), ContentsTags (..),
     Tag (..), User (userName), contentSchema, contentsTagsSchema, litContent, litTag, tagSchema, 
     userId, userSchema, 
-    conceptSchema, modelSchema,
-    Concept(..), Model(..)
+    conceptSchema, modelSchema, comparisonSchema, eloSchema,
+    Concept(..), Model(..), Comparison(..), Elo(..) 
     )
-import Rel8 (Expr, Insert (..), Name, OnConflict (..), Query, Rel8able, Result, TableSchema, each, filter, in_, insert, lit, many, select, values, where_, (==.))
+import Rel8 (Expr, Insert (..), Name, OnConflict (..), Update (..), Query, Rel8able, Result, TableSchema,
+    each, filter, in_, insert, lit, many, select, values, where_, update, (==.), (&&.))
 import Tagger.Id (Id)
 import qualified Tagger.User as Domain (User)
 import qualified Tagger.Concept as Domain (Concept) 
 import qualified Tagger.Model as Domain (Model)
+import qualified Tagger.Comparison as Domain (Comparison)
+--import qualified Tagger.Elo as Domain (Elo)
 import Data.Maybe (listToMaybe)
 import Prelude hiding (filter)
 
+import Data.Int (Int32)
 
 -- SELECT CONTENTS
 
@@ -253,3 +261,192 @@ selectAllModels = statement () query
       models <- each modelSchema
       pure models
     
+
+--data Comparison = Comparison
+--  { --  comparisonID :: UUID
+--    concept1Id :: Id Concept,
+--    concept2Id :: Id Concept,
+--    concept1EloBefore :: Int,
+--    concept2EloBefore :: Int,
+--    concept1EloAfter :: Int,
+--    concept2EloAfter :: Int,
+--    winning_conceptId :: Id Concept,
+--    modelId :: Id Model,
+--    comparisonTimestamp :: UTCTime 
+--  }
+--  deriving stock (Eq, Show, Generic)
+
+--data ComparisonRepository m = ComparisonRepository
+--  {
+--    doComparison :: Id Model -> Id Concept -> Id Concept -> m Comparison,
+--
+--    -- | select a comparison by 'Id'
+--    selectComparison :: Id Comparison -> m Comparison,
+--    
+--    selectAllComparisons :: m [(Id Comparison, Comparison)],
+--
+--    addComparison :: Comparison -> m (Id Comparison)
+--  }
+
+selectComparison :: (Id Domain.Comparison) -> Session (Maybe (Comparison Result))
+selectComparison comparisonId' = statement () query
+  where
+    query = fmap listToMaybe . select $ do
+      comparisons <- each comparisonSchema
+      filter (\comparison -> comparisonId comparison ==. lit comparisonId') comparisons
+
+selectAllComparisons :: Session [Comparison Result]
+selectAllComparisons = statement () query
+  where
+    query = select $ do
+      comparisons <- each comparisonSchema
+      pure comparisons
+
+
+addComparison :: Comparison Expr -> Session ()
+addComparison = statement () . add comparisonSchema . pure
+
+
+--data Elo f = Elo
+--  { eloId :: Column f (Id Domain.Elo),
+--    eloConceptId :: Column f (Id Domain.Concept),
+--    eloModelId :: Column f (Id Domain.Model),
+--    eloScore :: Column f Int,
+--    eloLastUpdate :: Column f UTCTime
+--  }
+--  deriving stock (Generic)
+--  deriving anyclass (Rel8able)
+
+
+-- |
+-- Gets elo_score from the elo table by searching by conceptId and modelId, should only return one result
+
+
+--addConcept :: Concept Expr -> Session ()
+--addConcept = statement () . add conceptSchema . pure
+--
+--selectConcept :: (Id Domain.Concept) -> Session (Maybe (Concept Result))
+--selectConcept conceptId' = statement () query
+--  where
+--    query = fmap listToMaybe . select $ do
+--      concepts <- each conceptSchema
+--      filter (\concept -> conceptId concept ==. lit conceptId') concepts
+--
+--selectConceptByWikiLink :: Text -> Session (Either WrongNumberOfResults (Concept Result)) 
+--selectConceptByWikiLink wikiLink = statement () query
+--  where
+--    query = fmap justOne . select $ do
+--      concepts <- each conceptSchema
+--      filter (\concept -> conceptWikiLink concept ==. lit wikiLink) concepts
+--
+--selectAllConcepts :: Session [Concept Result] 
+--selectAllConcepts = statement () query
+--  where
+--    query = select $ each conceptSchema
+
+
+
+
+
+selectElosByConceptAndModel :: (Id Domain.Model) -> (Id Domain.Concept) -> Session (Maybe (Elo Result))
+selectElosByConceptAndModel modelId' conceptId' = statement () query
+  where
+    query = fmap listToMaybe . select $ do
+      elos <- each eloSchema
+      filter (\elo -> eloConceptId elo ==. lit conceptId' &&. eloModelId elo ==. lit modelId') elos 
+
+selectElosByConcept :: (Id Domain.Concept) -> Session [Elo Result]
+selectElosByConcept conceptId' = statement () query
+  where
+    query = select $ do
+      elos <- each eloSchema
+      filter (\elo -> eloConceptId elo ==. lit conceptId') elos
+
+selectElosByModel :: (Id Domain.Model) -> Session [Elo Result]
+selectElosByModel modelId' = statement () query
+  where
+    query = select $ do
+      elos <- each eloSchema
+      filter (\elo -> eloModelId elo ==. lit modelId') elos
+
+selectAllElos :: Session [Elo Result]
+selectAllElos = statement () query
+  where
+    query = select $ each eloSchema
+
+addElo :: Elo Expr -> Session ()
+addElo = statement () . add eloSchema . pure
+
+--data Update a where
+--
+--The constituent parts of an UPDATE statement.
+--
+--Constructors
+
+--Update	 
+--
+--    :: Selects names exprs 
+--    => { target :: TableSchema names
+--
+--    Which table to update.
+--       , from :: Query from
+--
+--    FROM clause — this can be used to join against other tables, and its results can be referenced in the SET and WHERE clauses.
+--       , set :: from -> exprs -> exprs
+--
+--    How to update each selected row.
+--       , updateWhere :: from -> exprs -> Expr Bool
+--
+--    Which rows to select for update.
+--       , returning :: Returning names a
+--
+--    What to return from the UPDATE statement.
+--       } -> Update a 
+--
+--update :: Update a -> Statement () a
+--
+--Run an UPDATE statement.
+
+--CHAPTER
+--SIX
+--INSERT, UPDATE AND DELETE
+--While the majority of Rel8 is about building and executing SELECT statement, Rel8 also has support for INSERT,
+--UPDATE and DELETE. These statements are all executed using the insert, update and delete functions, all of
+--which take a record of parameters.
+--Note: This part of Rel8’s API uses the DuplicateRecordFields language extension. In code that needs to use
+--this API, you should also enable this language extension, or you may get errors about ambiguous field names.
+--6.1 DELETE
+--To perform a DELETE statement, construct a Delete value and execute it using delete. Delete takes:
+--from The TableSchema for the table to delete rows from.
+--using This is a simple Query that forms the USING clause of the DELETE statement. This can be used to join
+--against other tables, and the results can be referenced in the deleteWhere parameter. For simple DELETEs
+--where you don’t need to do this, you can set using = pure ().
+--deleteWhere The WHERE clause of the DELETE statement. This is a function that takes two inputs: the result of
+--the using query, and the current value of the row.
+--returning What to return - see RETURNING.
+--6.2 UPDATE
+--To perform a UPDATE statement, construct a Update value and execute it using update. Update takes:
+--target The TableSchema for the table to update rows in.
+--from This is a simple Query that forms the FROM clause of the UPDATE statement. This can be used to join against
+--other tables, and the results can be referenced in the set and updateWhere parameters. For simple UPDATEs
+--where you don’t need to do this, you can set from = pure ().
+--set A row to row transformation function, indicating how to update selected rows. This function takes rows of the
+--same shape as target but in the Expr context. One way to write this function is to use record update syntax:
+--set = \from row -> row { rowName = "new name" }
+--updateWhere The WHERE clause of the UPDATE statement. This is a function that takes two inputs: the result of
+--the from query, and the current value of the row.
+--25
+--Rel8, Release 1.0.0
+--returning What to return 
+
+updateScore :: (Id Domain.Model) -> (Id Domain.Concept) -> Int32 -> Session ()
+updateScore modelId' conceptId' score = statement () query
+  where
+    query = update $
+        Update {
+            target = eloSchema,
+            from = pure (),
+            set = \_ row -> row { eloScore = lit score },
+            updateWhere = \_ row -> eloModelId row ==. lit modelId' &&. eloConceptId row ==. lit conceptId',
+            returning = pure ()
+            }
