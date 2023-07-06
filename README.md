@@ -12,12 +12,20 @@ Welcome to WhichIsBetterAI's API documentation. This program utilizes AI models 
 
 ## Data Model
 
-The application uses a relational data model with four main tables:
+The data model of this application revolves around four main entities: `Concepts`, `AI Models`, `Comparison Results`, and `ELO Scores`. Here's a detailed overview:
 
-- `concepts`: This table holds the details about the concepts pulled from Wikipedia.
-- `ai_models`: This table holds the details about the AI models used for comparisons.
-- `comparison_results`: This table holds the results of the comparisons run by the AI models.
-- `elo_scores`: This table holds the ELO scores of the concepts.
+1. **Concepts:** These are the subjects of comparison. Each concept has a unique identifier (`concept_id`), a name (`concept_name`), a description (`concept_description`), and a link to its corresponding Wikipedia page (`concept_wiki_link`). 
+
+2. **AI Models:** These are the models that perform the comparisons. Each model has a unique identifier (`model_id`), a name (`model_name`), and a description (`model_description`).
+
+3. **Comparison Results:** This table holds the results of the comparisons performed by the AI models. Each comparison has a unique identifier (`comparison_id`), the IDs of the two compared concepts (`concept1_id` and `concept2_id`), the ELO scores of the concepts before and after the comparison (`concept1_elo_before`, `concept2_elo_before`, `concept1_elo_after`, `concept2_elo_after`), the ID of the winning concept (`winning_concept_id`), the ID of the model that performed the comparison (`model_id`), and the timestamp of the comparison (`comparison_timestamp`).
+
+4. **ELO Scores:** This table holds the ELO scores of the concepts. Each entry has a unique identifier (`elo_id`), the ID of the concept (`concept_id`), the ID of the model that determined the score (`model_id`), the actual ELO score (`elo_score`), and the timestamp of the last update (`last_update_timestamp`).
+
+In all tables, UUIDs are used for unique identifiers, while standard SQL data types are used for the other fields (VARCHAR for text, INTEGER for numbers, and TIMESTAMP WITH TIME ZONE for timestamps).
+
+See schema.sql for more detail
+
 
 ## Endpoints
 
