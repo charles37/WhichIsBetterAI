@@ -131,6 +131,12 @@ This Haskell script is designed to run comparisons between two concepts using Op
 - `similarEnough`: This function uses Jaro-Winkler distance, a measure of similarity between two strings, to determine if two concepts are similar enough. It is mainly used in the `runComparison` function to decide which of the concepts was chosen by the model.
 - `runComparison`: This is the main function of this script. It takes the names of two concepts and runs a comparison using OpenAI's GPT-3.5-turbo model. It returns the name of the concept that the model considers 'better'. 
 
+## Note on User and Content Types
+
+You might notice that I have retained the User and Content types from the original Servant template. These types were part of the original template's user authentication functionality.
+
+I decided to keep them intact even though I'm not currently using these features in the `WhichIsBetterAI` program. I believe it's beneficial to keep this functionality for possible future enhancements. This will allow me to add user-specific features or content management capabilities more easily should I decide to include them in future updates.
+
 
 ## Performance
 
