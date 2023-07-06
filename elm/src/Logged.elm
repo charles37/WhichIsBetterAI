@@ -67,11 +67,11 @@ update msg model =
         NewTag tagMsg ->
             Tuple.mapFirst (\newTags -> { model | newTags = newTags }) (Tags.update (always Cmd.none) tagMsg model.newTags)
 
-        SubmitContent ->
-            (model, addModel model.token)
-            -- ( model, addConcept model.token )
-            -- BENS TESTING GROUNDS
-            -- ( model, addContent model.token (Content model.newContent model.newTags.tags) )
+        SubmitContent ->   
+            --(model, addModel model.token)
+            (model, runRandomComparisons model.token)
+           -- ( model, addConcept model.token )
+           --  ( model, addContent model.token (Content model.newContent model.newTags.tags) )
 
         SubmitSuccessful content ->
             ( { model | contents = content :: model.contents }, Cmd.none )
@@ -208,30 +208,6 @@ addContent token content =
         , tracker = Nothing
         }
 
-addConcept : Token -> Cmd Msg
-addConcept token =
-    Http.request
-        { method = "POST"
-        , headers = [ authorization token ]
-        , url = "http://localhost:8080/add-concept/test/test/test"
-        , body = jsonBody (Json.Encode.object [])
-        , expect = expectWhatever (always SubmitFailed)
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-addModel : Token -> Cmd Msg
-addModel token = 
-    Http.request
-        { method = "POST"
-        , headers = [ authorization token ]
-        , url = "http://localhost:8080/add-model/myModelName/modelDesc"
-        , body = jsonBody (Json.Encode.object [])
-        , expect = expectWhatever (always SubmitFailed)
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
 handleNewContentResponse : Content -> Result Http.Error () -> Msg
 handleNewContentResponse content result =
     case result of
@@ -252,3 +228,41 @@ contentEncoder content =
         [ ( "message", Json.Encode.string content.message )
         , ( "tags", Json.Encode.list tagEncoder (toList content.tags) )
         ]
+
+addConcept : Token -> Cmd Msg
+addConcept token =
+    Http.request
+        { method = "POST"
+        , headers = [ authorization token ]
+        , url = "http://localhost:8080/add-concept/yikes/yikes2/yikes.com"
+        , body = jsonBody (Json.Encode.object [])
+        , expect = expectWhatever (always SubmitFailed)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+addModel : Token -> Cmd Msg
+addModel token = 
+    Http.request
+        { method = "POST"
+        , headers = [ authorization token ]
+        , url = "http://localhost:8080/add-model/gpt3.5-turbo/1.0.0"
+        , body = jsonBody (Json.Encode.object [])
+        , expect = expectWhatever (always SubmitFailed)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+--run-random-comparisons
+
+runRandomComparisons : Token -> Cmd Msg
+runRandomComparisons token = 
+    Http.request
+        { method = "POST"
+        , headers = [ authorization token ]
+        , url = "http://localhost:8080/run-random-comparisons/50"
+        , body = jsonBody (Json.Encode.object [])
+        , expect = expectWhatever (always SubmitFailed)
+        , timeout = Nothing
+        , tracker = Nothing
+        }

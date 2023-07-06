@@ -29,6 +29,7 @@ import qualified Tagger.Comparison as Domain (Comparison)
 --import qualified Tagger.Elo as Domain (Elo)
 import Data.Maybe (listToMaybe)
 import Prelude hiding (filter)
+--import Data.Functor.Contravariant ((>$<))
 
 import Data.Int (Int32)
 
@@ -368,6 +369,13 @@ selectElosByModel modelId' = statement () query
     query = select $ do
       elos <- each eloSchema
       filter (\elo -> eloModelId elo ==. lit modelId') elos
+
+
+--getLeaderBoard gets the top 100 concepts by elo score for a given model 
+--
+      
+
+      
 
 selectAllElos :: Session [Elo Result]
 selectAllElos = statement () query

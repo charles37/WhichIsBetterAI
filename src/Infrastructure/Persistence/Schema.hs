@@ -242,7 +242,7 @@ data Comparison f = Comparison
 comparisonSchema :: TableSchema (Comparison Name)
 comparisonSchema =
   TableSchema
-    { name = "comparisons",
+    { name = "comparison_results" ,
       schema = Nothing,
       columns =
         Comparison
@@ -251,7 +251,7 @@ comparisonSchema =
             concept2Id = "concept2_id",
             concept1EloBefore = "concept1_elo_before",
             concept2EloBefore = "concept2_elo_before",
-            concept1EloAfter  = "concept2_elo_after",
+            concept1EloAfter  = "concept1_elo_after",
             concept2EloAfter  = "concept2_elo_after",
             winningConceptId = "winning_concept_id",
             comparisonModelId = "model_id",

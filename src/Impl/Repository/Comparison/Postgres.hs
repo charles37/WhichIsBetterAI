@@ -21,11 +21,14 @@ import Data.Text (pack)
 import qualified Infrastructure.Persistence.Queries as Query
 import Hasql.Session (CommandError (ResultError), QueryError (QueryError), ResultError (ServerError), Session)
 import Impl.Repository.Comparison.Error (ComparisonRepositoryError (..))
-import Infrastructure.Persistence.Schema (litComparison, comparisonId, eloScore, conceptName, modelName, modelId)
+import Infrastructure.Persistence.Schema (litComparison, comparisonId, conceptId, eloScore, conceptName, modelName, modelId)
 
 import Data.Time.Clock (getCurrentTime)
+import Data.Int (Int32)
 
-                                                               -- Winnervvv
+import System.Random (randomRIO)
+
+
 -- runComparison :: ModelName -> ConceptName -> ConceptName -> ConceptName 
 -- runComparison :: Text -> Text -> Text -> ExceptT ComparisonRepositoryError IO Text 
 import Tagger.AI (runComparison)
@@ -39,13 +42,14 @@ import Tagger.Scoring (calculateELOWinnerScoreFirst)
 --    selectAllComparisons :: m [(Id Comparison, Comparison)],
 --    -- | adds a 'Comparison'
 --
---    addComparison :: Id Concept -> Id Concept -> Int32 -> Int32 -> Int32 -> Int32 -> Id Model -> m (Id Comparison),
+--    --addComparison :: Id Concept -> Id Concept -> Int -> Int -> Int -> Int -> Id Model -> m (Id Comparison),
 --
---    doComparisonSingle :: Id Model -> Id Concept -> Id Concept ->  m (Id Comparison, Comparison),
+--    doComparisonSingle :: Id Model -> Id Concept -> Id Concept -> m (Id Comparison, Comparison),
 --
---    doComparisonAllModels ::  Id Concept ->  Id Concept -> m [(Id Comparison, Comparison)]
+--    doComparisonAllModels :: Id Concept -> Id Concept -> m [(Id Comparison, Comparison)],
+--
+--    runRandomComparisons :: Int32 -> m [(Id Comparison, Comparison)]
 --  }
-
 
 --data Comparison = Comparison
 --  { --  comparisonID :: UUID
@@ -69,7 +73,9 @@ repository handle =
     { selectComparison = postgresSelectComparison handle,
       selectAllComparisons = postgresSelectAllComparisons handle, 
       doComparisonSingle = postgresDoComparisonSingle handle,
-      doComparisonAllModels = postgresDoComparisonAllModels handle
+      doComparisonAllModels = postgresDoComparisonAllModels handle,
+      runRandomComparisons = postgresRunRandomComparisons handle
+
     }
 
 postgresSelectComparison :: DB.Handle -> Id Comparison -> ExceptT ComparisonRepositoryError IO Comparison
@@ -198,6 +204,32 @@ postgresDoComparisonAllModels handle concept1Id' concept2Id' = do
         comparisons <- mapM doComparisonForModel models
         pure comparisons
 
+
+-- | postgresRunRandomComparisons does gets two random distinct concepts and does a comparison for them 
+-- | it then gets two more random distinct concepts and does a comparison for them by running postgresDoComparisonAllModels
+-- | it keeps getting random distinct concepts and doing comparisons until it has done n comparisons
+postgresRunRandomComparisons :: DB.Handle -> Int32 -> ExceptT ComparisonRepositoryError IO [(Id Comparison, Comparison)]
+postgresRunRandomComparisons handle n = do
+    let getConceptsQuery = Query.selectAllConcepts
+    
+    concepts <- runRepositoryQuery handle getConceptsQuery
+    
+    case concepts of
+        [] -> throwE $ NoConceptsInDatabase
+        _ -> do
+            let doComparisonForConcepts concept1 concept2 = postgresDoComparisonAllModels handle (conceptId concept1) (conceptId concept2)
+            comparisons <- mapM (\_ -> do
+                -- pickRandomElement :: [a] -> IO (Maybe a)
+                concept1 <- liftIO $ pickRandomElement concepts
+                concept2 <- liftIO $ pickRandomElement concepts
+                --Wonder what happens if they are the same concept?
+                doComparisonForConcepts concept1 concept2) [1..n] 
+            pure $ concat comparisons
+    
+pickRandomElement :: [a] -> IO a
+pickRandomElement list = do
+    index <- randomRIO (0, length list - 1)
+    return (list !! index)
 
 -- | Run a query transforming a Hasql.QueryError into a ComparisonRepositoryError as appropriate to the
 -- domain.

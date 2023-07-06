@@ -9,7 +9,7 @@ import Control.Monad.Trans.Except (ExceptT (ExceptT), withExceptT, throwE)
 import Data.ByteString (isInfixOf)
 import qualified Infrastructure.Database as DB
 import qualified Infrastructure.Persistence.Queries as DB (selectAllElos) --
-import Infrastructure.Persistence.Serializer (unserializeElo)
+import Infrastructure.Persistence.Serializer (unserializeElo, unserializeConcept)
 import Tagger.Elo (Elo)
 import Tagger.Concept (Concept)
 import Tagger.Model (Model) 
@@ -19,9 +19,11 @@ import Data.Text (pack)
 import qualified Infrastructure.Persistence.Queries as Query
 import Hasql.Session (CommandError (ResultError), QueryError (QueryError), ResultError (ServerError), Session)
 import Impl.Repository.Elo.Error (EloRepositoryError (..))
-import Infrastructure.Persistence.Schema (eloId, eloScore)
+import Infrastructure.Persistence.Schema (eloId, eloConceptId, eloScore)
 
 import Data.Int (Int32)
+import Data.List (sortBy)
+import Data.Maybe (catMaybes)
 
 --getEloByConceptAndModel :: (Id Domain.Model) -> (Id Domain.Concept) -> Session (Maybe (Elo Result))
 --getEloByConceptAndModel modelId' conceptId' = statement () query
@@ -98,7 +100,9 @@ repository handle =
     { getEloScoreByConceptAndModel = postgresGetEloScoreByConceptAndModel handle,
       getElosByModel =  postgresGetElosByModel handle,
       getElosByConcept = postgresGetElosByConcept handle,
-      getAllElos = postgresGetAllElos handle
+      getAllElos = postgresGetAllElos handle,
+      getLeaderboard = postgresGetLeaderboard handle
+
     }
 
 postgresGetAllElos :: DB.Handle -> ExceptT EloRepositoryError IO [(Id Elo, Elo)]
@@ -122,6 +126,32 @@ postgresGetElosByConcept :: DB.Handle -> Id Concept -> ExceptT EloRepositoryErro
 postgresGetElosByConcept handle conceptId = do
     elos <- runRepositoryQuery handle (Query.selectElosByConcept conceptId)
     pure $ map unserializeElo elos
+
+--getLeaderBoard gets the top 100 concepts by elo score for a given model and returns an array of tuples of the form (concept, eloScore) 
+--
+--selectLeaderboard :: (Id Domain.Model) -> Session [(Elo Result, Int32)]
+--selectLeaderboard modelId' = statement () query
+--  where
+--    query = select $ do
+--      elos <- each eloSchema
+--      filter (\elo -> eloModelId elo ==. lit modelId') elos
+--      orderBy (eloScore >$< desc)
+--      limit 100
+      
+
+-- we need to query selectLeaderboard then query selectConcept
+
+postgresGetLeaderboard :: DB.Handle -> Id Model -> ExceptT EloRepositoryError IO [(Concept, Int32)]
+postgresGetLeaderboard handle modelId = do
+    elos <- runRepositoryQuery handle (Query.selectElosByModel modelId)
+    -- sort the elos by score and take the top 100
+    -- This is actually a much harder problem in haskell than youd think
+    -- https://ro-che.info/articles/2016-04-02-descending-sort-haskell 
+    let sortedElos = sortBy (\a b -> compare (eloScore b) (eloScore a)) elos 
+    let top100 = take 100 sortedElos
+    concepts <- mapM (runRepositoryQuery handle . Query.selectConcept . eloConceptId) top100 
+    let conceptScores = zip (catMaybes concepts) (map eloScore top100)
+    pure $ map (\(concept, score) -> (unserializeConcept concept, score)) conceptScores
 
 ---- | For every model in the models table, add a new elo entry for the given concept, also gets the 
 --addConceptToElo :: (Id Domain.Concept) -> Session ()

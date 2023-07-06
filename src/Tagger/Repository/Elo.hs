@@ -26,13 +26,17 @@ data EloRepository m = EloRepository
     getElosByConcept :: Id Concept -> m [Elo],
 
     -- | selects all the 'Elo's
-    getAllElos :: m [(Id Elo, Elo)]
+    getAllElos :: m [(Id Elo, Elo)],
+
+    getLeaderboard :: Id Model -> m [(Concept, Int32)]
+
+
     
   }
 
 -- |
 -- Given a natural transformation between a context 'm' and a context 'n', it allows to change the context where 'EloRepository' is operating
 hoist :: (forall a. m a -> n a) -> EloRepository m -> EloRepository n
-hoist f EloRepository {getEloScoreByConceptAndModel, getElosByModel, getElosByConcept, getAllElos} =
-    EloRepository  ((f .) . getEloScoreByConceptAndModel) ((f .) getElosByModel) ((f .) getElosByConcept) (f getAllElos) 
+hoist f EloRepository {getEloScoreByConceptAndModel, getElosByModel, getElosByConcept, getAllElos, getLeaderboard} =
+    EloRepository  ((f .) . getEloScoreByConceptAndModel) ((f .) getElosByModel) ((f .) getElosByConcept) (f getAllElos) ((f .) getLeaderboard)
 

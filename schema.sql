@@ -41,6 +41,10 @@ CREATE TABLE comparison_results (
     comparison_id UUID PRIMARY KEY,
     concept1_id UUID NOT NULL,
     concept2_id UUID NOT NULL,
+    concept1_elo_before INTEGER NOT NULL,
+    concept2_elo_before INTEGER NOT NULL,
+    concept1_elo_after INTEGER NOT NULL,
+    concept2_elo_after INTEGER NOT NULL,
     winning_concept_id UUID NOT NULL,
     model_id UUID NOT NULL,
     comparison_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -49,6 +53,8 @@ CREATE TABLE comparison_results (
     FOREIGN KEY (winning_concept_id) REFERENCES concepts (concept_id),
     FOREIGN KEY (model_id) REFERENCES ai_models (model_id)
 );
+
+
 
 -- Table for ELO Scores
 CREATE TABLE elo_scores (

@@ -13,6 +13,7 @@ data ComparisonRepositoryError
   | ComparisonError Text
   | ModelNotFound Text
   | NoModelsInDatabase
+  | NoConceptsInDatabase
   | DatabaseError QueryError
   | OtherError QueryError
   deriving (Show)

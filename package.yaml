@@ -31,6 +31,8 @@ dependencies:
   - hasql-transaction
   - http-client
   - http-client-tls
+  - http-conduit
+  - http-types
   - jose
   - lens
   - mtl
@@ -39,6 +41,7 @@ dependencies:
   - optparse-applicative
   - postgresql-error-codes
   - rel8
+  - random
   - servant
   - servant-auth
   - servant-auth-server
