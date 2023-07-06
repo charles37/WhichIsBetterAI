@@ -42,7 +42,7 @@ runComparison _ concept1 concept2 =
   do manager <- newManager tlsManagerSettings
      --_ <- loadFile defaultConfig
      --apiKey <- T.pack <$> getEnv "OPENAI_KEY"
-     let apiKey = T.pack "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" -- VERY UNSAFE BUT REPO IS PRIVATE
+     let apiKey = T.pack "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" -- VERY UNSAFE revoked this in OpenAI dashboard
 
      -- create a openai client that automatically retries up to 4 times on network
      -- errors
