@@ -1,4 +1,4 @@
-name:               servant-template
+name:               whichIsBetterAI 
 version:            0.1.0.0
 author:             Marco Perone
 maintainer:         marco.perone@tweag.io
@@ -60,7 +60,7 @@ executables:
     source-dirs:    app
     main:           Main.hs
     dependencies:
-      - servant-template
+      - whichIsBetterAI 
       - bytestring
       - hasql
       - jose
@@ -74,7 +74,7 @@ tests:
     main:           Spec.hs
     source-dirs:    spec
     dependencies:
-      - servant-template
+      - whichIsBetterAI 
       - containers
       - hspec
       - http-client
