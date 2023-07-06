@@ -32,9 +32,37 @@ Our API offers various endpoints for interacting with the data:
 - `/add-concept`: Adds a new concept.
 - `/get-concepts`: Retrieves all concepts.
 
-## Instructions for use
+note there are several internal API endpoints that you can enable, soon I will document them all!
 
-The API endpoints can be used in any application that can make HTTP requests. For example, you can use the `fetch` function in JavaScript to make GET and POST requests to these endpoints.
+## Setting Up and Running the Server
+
+To get the server up and running, follow these steps:
+
+1. **Enter the Nix flake shell:** Run the following command to do this:
+
+```bash
+nix develop
+```
+
+2. **Set up the database:** You can do this by running the setup script. Here's the command:
+
+```bash
+bin/db/setup
+```
+
+3. **Build the API:** Run the build script with the following command:
+
+```bash
+bin/db/build
+```
+
+4. **Start the server:** Finally, you can start the server by running the serve script:
+
+```bash
+bin/db/serve
+```
+
+With these steps, you should be able to get your server up and running!
 
 ## PopulateDB.hs - Automatic Population of Database
 
