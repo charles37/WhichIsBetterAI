@@ -61,18 +61,5 @@ This Haskell script is designed to run comparisons between two concepts using Op
 ### Key Functions
 
 - `similarEnough`: This function uses Jaro-Winkler distance, a measure of similarity between two strings, to determine if two concepts are similar enough. It is mainly used in the `runComparison` function to decide which of the concepts was chosen by the model.
-- `runComparison`: This is the main function of this script. It takes the names of two concepts and runs a comparison using OpenAI's GPT-3.5-turbo model. It returns the name of the concept that the model considers 'better'. For the time being, the API key for OpenAI is hard-coded in this function.
-
-### How the Script Works
-
-The `runComparison` function sends a request to OpenAI's API with a chat message prompt crafted to make the model output only one of the two input concepts. The model's output is then compared to the original concept names using the `similarEnough` function to determine which concept the model has chosen. 
-
-The function handles errors by returning the error message or the raw model output when it cannot match the model output to one of the concepts.
-
-Please note that this script does not handle any network errors that may occur during communication with the OpenAI API.
-
-### How to Use the Script
-
-The script is designed to be used as a module, so you can import it into your Haskell programs using `import Tagger.AI`. After importing, you can call the `runComparison` function with your chosen concepts to get a comparison from the OpenAI model.
-
+- `runComparison`: This is the main function of this script. It takes the names of two concepts and runs a comparison using OpenAI's GPT-3.5-turbo model. It returns the name of the concept that the model considers 'better'. 
 
