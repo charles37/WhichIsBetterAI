@@ -1,6 +1,11 @@
 # WhichIsBetterAI - API Documentation
 
-Welcome to WhichIsBetterAI's API documentation. This program utilizes AI models to compare random concepts pulled from Wikipedia and then adjusts their ELO scores based on the outcome. These adjustments are used to create a fun and innovative leaderboard. 
+Welcome to WhichIsBetterAI's API documentation. This program, inspired by [ELO Everything](https://eloeverything.co/) created by [granawkins](http://twitter.com/granawkins), 
+
+ELO Everything is a fun site where users compare two things and decide which is better. WhichIsBetterAI uses AI models to compare random concepts pulled from Wikipedia and then adjusts their ELO scores based on the outcomes. Inspired by this ranking concept, the goal of WhichIsBetterAI is to create a fully scalable system where various AI models can run identical ELO comparison matchups. This will result in diverse ELO leaderboards, which could serve as a powerful tool for detecting AI bias.
+
+In the spirit of open collaboration and advancement in AI, I plan to fully release the comparison dataset for each model for further analysis. I hope this will provide valuable insights into how different AI models interpret and analyze information.
+
 
 ## Acknowledgments
 
