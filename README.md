@@ -54,6 +54,3 @@ After the GHC session is started, simply run the `populateDB` function with the 
 
 This script will automatically fetch and add 2000 random Wikipedia articles as concepts in the database. You can change this number in the `populateDB` function.
 
-### Error Handling
-
-The script includes basic error handling. If it fails to fetch an article summary or to login, it will print a corresponding error message to the console.
