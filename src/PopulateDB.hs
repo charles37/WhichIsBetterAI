@@ -44,9 +44,6 @@ instance FromJSON Token where
     in return $ Token stripped
 
 
-
-
-
 fetchRandomArticle :: Manager -> IO (Maybe Summary)
 fetchRandomArticle manager = do
   request' <- parseRequest "https://en.wikipedia.org/api/rest_v1/page/random/summary"
@@ -68,23 +65,6 @@ login manager endpoint username password = do
   putStrLn $ show response
   return $ decode $ responseBody response
 
---addConcept :: Manager -> String -> Text -> Text -> Text -> Text -> IO ()
---addConcept manager endpoint authToken conceptName conceptDesc conceptLink = do
---  initialRequest <- parseRequest endpoint
---  let request = initialRequest { method = "POST"
---                               , requestHeaders = [ ("Content-Type", "application/json")
---                                                  , ("Authorization", encodeUtf8 $ "Bearer " <> authToken)
---                                                  ]
---                               , requestBody = RequestBodyLBS $ encode $ object [ "concept_name" .= conceptName
---                                                                                 , "concept_description" .= conceptDesc
---                                                                                 , "concept_wikilink" .= conceptLink
---                                                                                 ]
---                               }
---  response <- httpLbs request manager
---  putStrLn $ show response
---  putStrLn $ "Added concept: " ++ T.unpack conceptName
-  
-  
 
 addConcept :: Manager -> String -> Text -> Text -> Text -> Text -> IO ()
 addConcept manager endpoint authToken conceptName conceptDesc conceptLink = do

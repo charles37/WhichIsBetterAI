@@ -22,16 +22,6 @@ import Data.Int (Int32)
 import Data.UUID (UUID)
 
 
-
-
---  EloRepository
---    { getEloScoreByConceptAndModel = postgresGetEloScoreByConceptAndModel handle,
---      getElosByModel =  postgresGetElosByModel handle,
---      getElosByConcept = postgresGetElosByConcept handle,
---      getAllElos = postgresGetAllElos handle
---    }
-
-
 data EloAPI mode  = EloAPI
   { 
     getElos :: mode :- "get-elos" :> Get '[JSON] [(Id Elo, Elo)] ,

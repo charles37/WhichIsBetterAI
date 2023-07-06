@@ -88,17 +88,6 @@ unserializeUser :: DB.User Result -> User
 unserializeUser user = User (userName user) (userPassword user)
 
 
-
---data Concept f = Concept
---  { conceptId :: Column f (Id Concept.Concept),
---    conceptName :: Column f Text,
---    conceptDescription :: Column f Text,
---    conceptWikiLink :: Column f Text
---  }
---  deriving stock (Generic)
---  deriving anyclass (Rel8able)
-
-
 -- CONCEPT 
 -- |
 -- Transform from a domain representation of a 'Concept' to its underlying database representation
@@ -119,14 +108,6 @@ unserializeConcept :: DB.Concept Result -> Concept
 unserializeConcept concept = Concept (conceptName concept) (conceptDescription concept) (conceptWikiLink concept)
 
 
---data Model f = Model
---  { modelId :: Column f (Id Domain.Model),
---    modelName :: Column f Text,
---    modelDescription :: Column f Text
---  }
---  deriving stock (Generic)
---  deriving anyclass (Rel8able)
-
 
 -- MODEL
 -- |
@@ -146,21 +127,6 @@ serializeModel modelId' model =
 --
 unserializeModel :: DB.Model Result -> Model
 unserializeModel model = Model (modelName model) (modelDescription model)
-
-
---data Comparison = Comparison
---  { --  comparisonID :: UUID
---    concept1Id :: Id Concept,
---    concept2Id :: Id Concept,
---    concept1EloBefore :: Int32,
---    concept2EloBefore :: Int32,
---    concept1EloAfter :: Int32,
---    concept2EloAfter :: Int32,
---    winningConceptId :: Id Concept,
---    comparisonModelId :: Id Model,
---    comparisonTimestamp :: UTCTime 
---  }
---  deriving stock (Eq, Show, Generic)
 
 -- COMPARISON
 -- |
@@ -188,16 +154,6 @@ unserializeComparison :: DB.Comparison Result -> Comparison
 unserializeComparison comparison = Comparison (concept1Id comparison) (concept2Id comparison) (concept1EloBefore comparison) (concept2EloBefore comparison) (concept1EloAfter comparison) (concept2EloAfter comparison) (winningConceptId comparison) (comparisonModelId comparison) (comparisonTimestamp comparison) 
 
 
-
---data Elo f = Elo
---  { eloId :: Column f (Id Domain.Elo),
---    eloConceptId :: Column f (Id Domain.Concept),
---    eloModelId :: Column f (Id Domain.Model),
---    eloScore :: Column f Int,
---    eloLastUpdate :: Column f UTCTime
---  }
---  deriving stock (Generic)
---  deriving anyclass (Rel8able)
 
 
 -- ELO

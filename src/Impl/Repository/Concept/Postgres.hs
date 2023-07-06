@@ -63,23 +63,6 @@ postgresGetConceptByWikiLink handle wikiLink = do
       Right concept' -> pure $ (conceptId concept', unserializeConcept concept')
 
 
----- | For every model in the models table, add a new elo entry for the given concept, also gets the 
---addConceptToElo :: (Id Domain.Concept) -> Session ()
---addConceptToElo conceptId' = do
---  models <- selectAllModels
---  mapM_ (\(modelId', _) -> addElo $ Elo (Id Nothing) conceptId' modelId' 1400 (UTCTime (ModifiedJulianDay 0) 0)) models
-
-
---data Elo = Elo
---  { --  eloId :: UUID
---    conceptId :: Id Concept,
---    modelId :: Id Model,
---    eloScore :: Int32,
---    lastUpdate :: UTCTime
---    
---  }
---  deriving stock (Eq, Show, Generic)
-
 postgresAddConcept :: DB.Handle -> Text -> Text -> Text -> ExceptT ConceptRepositoryError IO (Id Concept)
 postgresAddConcept handle cName cDesc cWikiLink = do
   -- Generate a UUID for the concept
@@ -90,9 +73,6 @@ postgresAddConcept handle cName cDesc cWikiLink = do
   let allModelsQuery = Query.selectAllModels
   -- | get all the models
   -- | for each model, add a new elo entry for the given concept
-  --
-  --
-  -- selectAllModels :: Session [Model Result]
 
   models <- runRepositoryQuery handle allModelsQuery
   mapM_ (\theModel -> do
@@ -102,18 +82,6 @@ postgresAddConcept handle cName cDesc cWikiLink = do
           ) models
 
   pure $ Id conceptUUID
-
---case models of
---    Left _ -> throwE $ OtherError (QueryError "Error getting all models" [] (ResultError (ServerError "23505" "Error getting all models" [] [])))
---    -- | we need to produce a new eloId for each model, thus we must call nextRandom again for length of models
---    Right models' -> do
---        -- | iterate over the models, generating a new eloId for each, then add the elo to the database
---        mapM_ (\(modelId', _) -> do
---          eloUUID <- liftIO nextRandom
---          let eloQuery = Query.addElo . litElo $ serializeElo (Id eloUUID) (Id conceptUUID) modelId' 1400 (UTCTime (ModifiedJulianDay 0) 0)
---          runRepositoryQuery handle eloQuery
---          ) models'
---
 
 -- | Run a query transforming a Hasql.QueryError into a ConceptRepositoryError as appropriate to the
 -- domain.
@@ -126,41 +94,3 @@ liftRepositoryError queryError@(QueryError _ _ (ResultError (ServerError "23505"
   | "concepts_conceptWikiLink_key" `isInfixOf` message = DuplicateConceptWikiLink queryError
 liftRepositoryError queryError = OtherError queryError
 
--- |
--- A 'UserRepository' based on PostgreSQL
---repository :: DB.Handle -> UserRepository (ExceptT UserRepositoryError IO)
---repository handle =
---  UserRepository
---    { findByName = postgresGetUserByName handle,
---      add = postgresAddUser handle
---    }
---
---postgresGetUserByName :: DB.Handle -> Text -> ExceptT UserRepositoryError IO (Id User, User)
---postgresGetUserByName handle name = do
---  eitherUser <- runRepositoryQuery handle (Query.selectUserByName name)
---  case eitherUser of
---    Right usr -> pure (userId usr, unserializeUser usr)
---    Left e -> throwE $ UnexpectedNumberOfRows e
-
---postgresAddUser :: DB.Handle -> Text -> EncryptedPassword -> ExceptT UserRepositoryError IO (Id User)
---postgresAddUser handle name password = do
---  -- Generate the UUID for the user
---  userId' <- liftIO nextRandom
---  let query = Query.addUser . litUser $ serializeUser (Id userId') (User name password)
---
---  -- Actually add the user to the database, differentiating the `UserRepositoryError` cases
---  runRepositoryQuery handle query
---  pure $ Id userId'
---
---
-
-
--- | Run a query transforming a Hasql.QueryError into a UserRepositoryError as appropriate to the
--- domain.
---runRepositoryQuery :: DB.Handle -> Session a -> ExceptT UserRepositoryError IO a
---runRepositoryQuery handle = withExceptT liftRepositoryError . ExceptT . DB.runQuery handle
---
---liftRepositoryError :: QueryError -> UserRepositoryError
---liftRepositoryError queryError@(QueryError _ _ (ResultError (ServerError "23505" message _ _)))
---  | "users_name_key" `isInfixOf` message = DuplicateUserName queryError
---liftRepositoryError queryError = OtherError queryError

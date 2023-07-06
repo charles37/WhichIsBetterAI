@@ -18,16 +18,6 @@ import Prelude hiding (getContents)
 
 -- |
 -- The main endpoints of the application API
---data TaggerAPI mode = TaggerAPI
---  { -- | Add a new 'Content'
---    addContent :: mode :- "add-content" :> ReqBody '[JSON] (Content Tag) :> Post '[JSON] (Id (Content Tag)),
---    -- | Retrieve all the 'User' 'Content's indexed by the provided 'Tag's
---    getContents :: mode :- "get-contents" :> QueryParams "tag" Tag :> Get '[JSON] [Owned (Content Tag)]
---  }
---  deriving stock (Generic)
-
--- |
--- The main endpoints of the application API
 data ModelAPI mode  = ModelAPI
   { -- | Add a new 'Content' takes three arguments: the name of the Model, a description of the Model, and the WikiLink 
   -- | express in the addModel below Text -> Text -> Text -> (Id Model) but in the Servant way, do not user the JSON as input use three text fields
@@ -40,11 +30,9 @@ data ModelAPI mode  = ModelAPI
   deriving stock (Generic)
 
 -- | example usage:
--- POST http://localhost:8080/add-model/test/test/test
---
--- GET http:    
+-- POST http://localhost:8080/add-model/test/test/
 
---
+
 
 modelServer :: TRM.ModelRepository Handler -> ModelAPI AsServer
 modelServer modelRepository = 

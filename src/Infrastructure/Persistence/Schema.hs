@@ -141,15 +141,6 @@ userSchema =
 litUser :: User Result -> User Expr
 litUser (User id' name' password) = User (lit id') (lit name') (lit password)
 
--- | Concepts
---data Concept = Concept
---  { --  conceptId :: UUID
---    conceptName :: Text,
---    conceptDescription :: Text,
---    conceptWikiLink :: Text
---  }
---  deriving stock (Eq, Show, Generic)
-
 data Concept f = Concept
   { conceptId :: Column f (Id Domain.Concept),
     conceptName :: Column f Text,
@@ -177,14 +168,6 @@ litConcept :: Concept Result -> Concept Expr
 litConcept (Concept id' name' description' wikiLink') =
   Concept (lit id') (lit name') (lit description') (lit wikiLink')
 
---data Model = Model
---  { --  modelID :: UUID
---    modelName :: Text,
---    modelDescription :: Text,
---  }
---  deriving stock (Eq, Show, Generic)
---
-
 data Model f = Model
   { modelId :: Column f (Id Domain.Model),
     modelName :: Column f Text,
@@ -210,19 +193,6 @@ litModel :: Model Result -> Model Expr
 litModel (Model id' name' description') =
   Model (lit id') (lit name') (lit description')
 
-
---data Comparison = Comparison
---  { --  comparisonID :: UUID
---    concept1Id :: Id Concept,
---    concept2Id :: Id Concept,
---    concept1EloBefore :: Int,
---    concept2EloBefore :: Int,
---    winning_conceptId :: Id Concept,
---    modelId :: Id Model,
---    comparisonTimestamp :: UTCTime 
---  }
---  deriving stock (Eq, Show, Generic)
---
 
 data Comparison f = Comparison
   { comparisonId :: Column f (Id Domain.Comparison),
@@ -263,16 +233,6 @@ litComparison :: Comparison Result -> Comparison Expr
 litComparison (Comparison id' concept1Id' concept2Id' concept1EloBefore' concept2EloBefore' concept1EloAfter' concept2EloAfter' winningConceptId' modelId' timestamp') =
   Comparison (lit id') (lit concept1Id') (lit concept2Id') (lit concept1EloBefore') (lit concept2EloBefore') (lit concept1EloAfter') (lit concept2EloAfter') (lit winningConceptId') (lit modelId') (lit timestamp')
 
-
---data Elo = Elo
---  { --  eloId :: UUID
---    conceptId :: Id Concept,
---    modelId :: Id Model,
---    eloScore :: Int,
---    lastUpdate :: UTCTime
---    
---  }
---  deriving stock (Eq, Show, Generic)
 
 data Elo f = Elo
   { eloId :: Column f (Id Domain.Elo),

@@ -27,12 +27,6 @@ similarEnough s1 s2 =
   let similarity = jaroWinkler (T.toLower s1) (T.toLower s2) 
   in similarity >= 0.85
 
-
-
-
-
---import Configuration.Dotenv (loadFile, defaultConfig)
-
 -- | runComparison :: ModelName -> ConceptName -> ConceptName -> IO ConceptName
 -- | takes a model name, and two concept names, and returns the name of the winning concept from that model
 -- | in the future we will have different models but for now just always use the openai models
@@ -40,17 +34,12 @@ similarEnough s1 s2 =
 runComparison :: T.Text -> T.Text -> T.Text -> IO T.Text
 runComparison _ concept1 concept2 =
   do manager <- newManager tlsManagerSettings
-     --_ <- loadFile defaultConfig
      --apiKey <- T.pack <$> getEnv "OPENAI_KEY"
      let apiKey = T.pack "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" -- VERY UNSAFE revoked this in OpenAI dashboard
 
      -- create a openai client that automatically retries up to 4 times on network
      -- errors
      let client = makeOpenAIClient apiKey manager 4
-
-     -- Long drawn out prompt really exclaiming that the ai should only output one of the two choices and only that
-     --let promptText choice1 choice2 = "Which is better, " <> choice1 <> " or " <> choice2 <> "? " <> "You must output only one of the choice and no other words"
-
      let request = ChatCompletionRequest 
              { chcrModel = ModelId "gpt-3.5-turbo"
              , chcrMessages = 

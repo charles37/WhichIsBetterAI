@@ -30,26 +30,8 @@ import System.Random (randomRIO)
 
 
 -- runComparison :: ModelName -> ConceptName -> ConceptName -> ConceptName 
--- runComparison :: Text -> Text -> Text -> ExceptT ComparisonRepositoryError IO Text 
 import Tagger.AI (runComparison)
 import Tagger.Scoring (calculateELOWinnerScoreFirst)
-
---data ComparisonRepository m = ComparisonRepository
---  {
---    -- | select a comparison by 'Id'
---    selectComparison :: Id Comparison -> m Comparison,
---    
---    selectAllComparisons :: m [(Id Comparison, Comparison)],
---    -- | adds a 'Comparison'
---
---    --addComparison :: Id Concept -> Id Concept -> Int -> Int -> Int -> Int -> Id Model -> m (Id Comparison),
---
---    doComparisonSingle :: Id Model -> Id Concept -> Id Concept -> m (Id Comparison, Comparison),
---
---    doComparisonAllModels :: Id Concept -> Id Concept -> m [(Id Comparison, Comparison)],
---
---    runRandomComparisons :: Int32 -> m [(Id Comparison, Comparison)]
---  }
 
 --data Comparison = Comparison
 --  { --  comparisonID :: UUID
@@ -101,25 +83,14 @@ postgresDoComparisonSingle handle modelId' concept1Id' concept2Id' = do
   let getModelNameQuery = Query.selectModel modelId'
   modelObjectResult <- runRepositoryQuery handle getModelNameQuery
 
-  --let modelName = case modelObjectResult of
-  --      Nothing -> throwE $ ModelNotFound ((pack . show) modelId')
-  --      Just model -> modelName model
-  
+ 
   let getConceptNameQuery = Query.selectConcept 
   
   concept1ObjectResult <- runRepositoryQuery handle (getConceptNameQuery concept1Id')
 
-  --let concept1Name = case concept1ObjectResult of
-  --      Nothing -> throwE $ ConceptNotFound ((pack . show) concept1Id')
-  --      Just concept -> conceptName concept
-
 
   concept2ObjectResult <- runRepositoryQuery handle (getConceptNameQuery concept2Id')
 
-  --let concept2Name = case concept2ObjectResult of
-  --      Nothing -> throwE $ ConceptNotFound ((pack . show) concept2Id')
-  --      Just concept -> conceptName concept
-    
 
   case (modelObjectResult, concept1ObjectResult, concept2ObjectResult) of
     (Nothing, _, _) -> throwE $ ModelNotFound ((pack . show) modelId')
@@ -140,25 +111,10 @@ postgresDoComparisonSingle handle modelId' concept1Id' concept2Id' = do
              _ -> do
                 let theWinningConceptId = if winningConceptName == concept1Name then concept1Id' else concept2Id'
              
-              --getEloByConceptAndModel :: (Id Domain.Model) -> (Id Domain.Concept) -> Session (Maybe (Elo Result))
-              --getEloByConceptAndModel modelId' conceptId' = statement () query
-               -- where
-               --   query = fmap listToMaybe . select $ do
-               --     elos <- each eloSchema
-               --     filter (\elo -> eloConceptId elo ==. lit conceptId' &&. eloModelId elo ==. lit modelId') elos 
-
                 let eloScoreQuery = Query.selectElosByConceptAndModel modelId'
 
                 concept1EloBeforeResult <- runRepositoryQuery handle (eloScoreQuery concept1Id')
-                --concept1EloBefore' <- case concept1EloBeforeResult of
-                --      Nothing -> throwE $ EloNotFound ((pack . show) concept1Id')
-                --      Just elo -> pure $ eloScore elo 
-
                 concept2EloBeforeResult <- runRepositoryQuery handle (eloScoreQuery concept2Id')
-
-                --concept2EloBefore' <- case concept2EloBeforeResult of
-                --      Nothing -> throwE $ EloNotFound ((pack . show) concept2Id')
-                --      Just elo -> pure $ eloScore elo
 
                 case (concept1EloBeforeResult, concept2EloBeforeResult) of
                   (Nothing, _) -> throwE $ EloNotFound ((pack . show) concept1Id')
@@ -174,7 +130,7 @@ postgresDoComparisonSingle handle modelId' concept1Id' concept2Id' = do
 
                     -- Now we have to adjust ELO Scores for the concepts
                   
-        --up  dateScore :: (Id Domain.Model) -> (Id Domain.Concept) -> Int32 -> Session ()
+                    --updateScore :: (Id Domain.Model) -> (Id Domain.Concept) -> Int32 -> Session ()
                     let updateEloQuery = Query.updateScore modelId'
 
                     runRepositoryQuery handle (updateEloQuery concept1Id' concept1EloAfter')

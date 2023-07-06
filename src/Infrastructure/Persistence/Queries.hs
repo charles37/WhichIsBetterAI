@@ -185,7 +185,6 @@ addUser = statement () . add userSchema . pure
 --  }
 --
 
-
 --data Concept = Concept
 --  { --  conceptId :: UUID
 --    conceptName :: Text,
@@ -215,8 +214,6 @@ selectAllConcepts :: Session [Concept Result]
 selectAllConcepts = statement () query
   where
     query = select $ each conceptSchema
-
-
 
 -- |
 -- A 'ModelRepository' represents a collection of 'Model's.
@@ -322,33 +319,6 @@ addComparison = statement () . add comparisonSchema . pure
 -- |
 -- Gets elo_score from the elo table by searching by conceptId and modelId, should only return one result
 
-
---addConcept :: Concept Expr -> Session ()
---addConcept = statement () . add conceptSchema . pure
---
---selectConcept :: (Id Domain.Concept) -> Session (Maybe (Concept Result))
---selectConcept conceptId' = statement () query
---  where
---    query = fmap listToMaybe . select $ do
---      concepts <- each conceptSchema
---      filter (\concept -> conceptId concept ==. lit conceptId') concepts
---
---selectConceptByWikiLink :: Text -> Session (Either WrongNumberOfResults (Concept Result)) 
---selectConceptByWikiLink wikiLink = statement () query
---  where
---    query = fmap justOne . select $ do
---      concepts <- each conceptSchema
---      filter (\concept -> conceptWikiLink concept ==. lit wikiLink) concepts
---
---selectAllConcepts :: Session [Concept Result] 
---selectAllConcepts = statement () query
---  where
---    query = select $ each conceptSchema
-
-
-
-
-
 selectElosByConceptAndModel :: (Id Domain.Model) -> (Id Domain.Concept) -> Session (Maybe (Elo Result))
 selectElosByConceptAndModel modelId' conceptId' = statement () query
   where
@@ -371,11 +341,7 @@ selectElosByModel modelId' = statement () query
       filter (\elo -> eloModelId elo ==. lit modelId') elos
 
 
---getLeaderBoard gets the top 100 concepts by elo score for a given model 
---
-      
-
-      
+     
 
 selectAllElos :: Session [Elo Result]
 selectAllElos = statement () query
@@ -384,68 +350,6 @@ selectAllElos = statement () query
 
 addElo :: Elo Expr -> Session ()
 addElo = statement () . add eloSchema . pure
-
---data Update a where
---
---The constituent parts of an UPDATE statement.
---
---Constructors
-
---Update	 
---
---    :: Selects names exprs 
---    => { target :: TableSchema names
---
---    Which table to update.
---       , from :: Query from
---
---    FROM clause — this can be used to join against other tables, and its results can be referenced in the SET and WHERE clauses.
---       , set :: from -> exprs -> exprs
---
---    How to update each selected row.
---       , updateWhere :: from -> exprs -> Expr Bool
---
---    Which rows to select for update.
---       , returning :: Returning names a
---
---    What to return from the UPDATE statement.
---       } -> Update a 
---
---update :: Update a -> Statement () a
---
---Run an UPDATE statement.
-
---CHAPTER
---SIX
---INSERT, UPDATE AND DELETE
---While the majority of Rel8 is about building and executing SELECT statement, Rel8 also has support for INSERT,
---UPDATE and DELETE. These statements are all executed using the insert, update and delete functions, all of
---which take a record of parameters.
---Note: This part of Rel8’s API uses the DuplicateRecordFields language extension. In code that needs to use
---this API, you should also enable this language extension, or you may get errors about ambiguous field names.
---6.1 DELETE
---To perform a DELETE statement, construct a Delete value and execute it using delete. Delete takes:
---from The TableSchema for the table to delete rows from.
---using This is a simple Query that forms the USING clause of the DELETE statement. This can be used to join
---against other tables, and the results can be referenced in the deleteWhere parameter. For simple DELETEs
---where you don’t need to do this, you can set using = pure ().
---deleteWhere The WHERE clause of the DELETE statement. This is a function that takes two inputs: the result of
---the using query, and the current value of the row.
---returning What to return - see RETURNING.
---6.2 UPDATE
---To perform a UPDATE statement, construct a Update value and execute it using update. Update takes:
---target The TableSchema for the table to update rows in.
---from This is a simple Query that forms the FROM clause of the UPDATE statement. This can be used to join against
---other tables, and the results can be referenced in the set and updateWhere parameters. For simple UPDATEs
---where you don’t need to do this, you can set from = pure ().
---set A row to row transformation function, indicating how to update selected rows. This function takes rows of the
---same shape as target but in the Expr context. One way to write this function is to use record update syntax:
---set = \from row -> row { rowName = "new name" }
---updateWhere The WHERE clause of the UPDATE statement. This is a function that takes two inputs: the result of
---the from query, and the current value of the row.
---25
---Rel8, Release 1.0.0
---returning What to return 
 
 updateScore :: (Id Domain.Model) -> (Id Domain.Concept) -> Int32 -> Session ()
 updateScore modelId' conceptId' score = statement () query
