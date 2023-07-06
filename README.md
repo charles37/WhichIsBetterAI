@@ -1,6 +1,10 @@
 # WhichIsBetterAI - API Documentation
 
-Welcome to WhichIsBetterAI's API documentation. This program utilizes AI models to compare random concepts pulled from Wikipedia and then adjusts their ELO scores based on the outcome. These adjustments are used to create a fun and innovative leaderboard.
+Welcome to WhichIsBetterAI's API documentation. This program utilizes AI models to compare random concepts pulled from Wikipedia and then adjusts their ELO scores based on the outcome. These adjustments are used to create a fun and innovative leaderboard. 
+
+## Acknowledgments
+
+This project was scaffolded using the [Servant Template](https://github.com/tweag/servant-template) as a starting point. I express  gratitude to the developers of this template for providing a great starting point for developing Haskell Servant applications.
 
 ## Main Features
 
