@@ -137,7 +137,7 @@ You might notice that I have retained the User and Content types from the origin
 
 I decided to keep them intact even though I'm not currently using these features in the `WhichIsBetterAI` program. I believe it's beneficial to keep this functionality for possible future enhancements. This will allow me to add user-specific features or content management capabilities more easily should I decide to include them in future updates.
 
-Currently the easiest way to register a user is to launch the template frontend with `cd elm; npx elm-live src/Main.elm` and then registering on the UI. Once you register with a "test" "test" user you can use the populateDB script or a different script that utilizes the `login` endpoint
+Currently the easiest way to register a user is to launch the template frontend with `cd elm; npx elm-live src/Main.elm` and then registering on the UI. Once you register with username: "test" password: "test" you can use the populateDB script or a different script that utilizes the `login` endpoint to grab a token
 
 ## Performance
 
