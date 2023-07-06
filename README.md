@@ -35,3 +35,25 @@ Our API offers various endpoints for interacting with the data:
 ## Instructions for use
 
 The API endpoints can be used in any application that can make HTTP requests. For example, you can use the `fetch` function in JavaScript to make GET and POST requests to these endpoints.
+
+## PopulateDB.hs - Automatic Population of Database
+
+This Haskell script is designed to automatically fetch random articles from Wikipedia, extract relevant information, and add them as concepts in the database.
+
+### Key Functions
+
+- `fetchRandomArticle`: Fetches a random article summary from Wikipedia.
+- `login`: Logs into the local server with a provided username and password.
+- `addConcept`: Adds a new concept to the database using the given article information.
+
+### How to Run the Script
+
+To run the script, use `stack ghci PopulateDB.hs` from the command line in the directory where `PopulateDB.hs` is located. This starts an interactive GHC session with `PopulateDB.hs` loaded.
+
+After the GHC session is started, simply run the `populateDB` function with the command `populateDB`.
+
+This script will automatically fetch and add 2000 random Wikipedia articles as concepts in the database. You can change this number in the `populateDB` function.
+
+### Error Handling
+
+The script includes basic error handling. If it fails to fetch an article summary or to login, it will print a corresponding error message to the console.
