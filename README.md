@@ -33,7 +33,7 @@ See schema.sql for more detail
 
 ## Endpoints
 
-Our API offers various endpoints for interacting with the data:
+The API offers various endpoints for interacting with the data:
 
 - `/get-elos`: Retrieves ELO scores.
 - `/get-leaderboard`: Retrieves the leaderboard.
@@ -76,6 +76,29 @@ bin/db/serve
 
 With these steps, you should be able to get your server up and running!
 
+## Example Results
+
+Here are some examples of the results you can get from this API.
+
+### Get Concepts Endpoint
+
+Here is an example of what you might get when you call the `getConcepts` endpoint:
+
+![Get Concepts Example](getConcepts.png)
+
+### Get Models Endpoint
+
+Here is an example of what you might get when you call the `getModels` endpoint:
+
+![Get Models Example](getModels.png)
+
+### Get Leaderboard Endpoint
+
+Here is an example of what you might get when you call the `getLeaderboard` endpoint:
+
+![Get Leaderboard Example](getLeaderboard.png)
+
+
 ## PopulateDB.hs - Automatic Population of Database
 
 This Haskell script is designed to automatically fetch random articles from Wikipedia, extract relevant information, and add them as concepts in the database.
@@ -103,3 +126,6 @@ This Haskell script is designed to run comparisons between two concepts using Op
 - `similarEnough`: This function uses Jaro-Winkler distance, a measure of similarity between two strings, to determine if two concepts are similar enough. It is mainly used in the `runComparison` function to decide which of the concepts was chosen by the model.
 - `runComparison`: This is the main function of this script. It takes the names of two concepts and runs a comparison using OpenAI's GPT-3.5-turbo model. It returns the name of the concept that the model considers 'better'. 
 
+## Frontend (Work in Progress)
+I am currently developing a frontend for the application. The frontend will be a website built using Elm, and will provide a user-friendly interface to view the leaderboards for each model, see the results of every comparison, and much more!
+Stay tuned for updates as I continue to develop and improve the application.
