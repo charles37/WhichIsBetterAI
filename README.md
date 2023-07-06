@@ -131,6 +131,12 @@ This Haskell script is designed to run comparisons between two concepts using Op
 - `similarEnough`: This function uses Jaro-Winkler distance, a measure of similarity between two strings, to determine if two concepts are similar enough. It is mainly used in the `runComparison` function to decide which of the concepts was chosen by the model.
 - `runComparison`: This is the main function of this script. It takes the names of two concepts and runs a comparison using OpenAI's GPT-3.5-turbo model. It returns the name of the concept that the model considers 'better'. 
 
+
+## Performance
+
+I have yet to pass over the project for performance enhancements and I am sure that there are many processes that have been written sub-optimaly
+
+
 ## Frontend (Work in Progress)
 I am currently developing a frontend for the application. The frontend will be a website built using Elm, and will provide a user-friendly interface to view the leaderboards for each model, see the results of every comparison, and much more!
 Stay tuned for updates as I continue to develop and improve the application.
